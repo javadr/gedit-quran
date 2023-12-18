@@ -1,6 +1,7 @@
 import gi
 gi.require_version('Gedit', '3.0')
 gi.require_version('Gtk', '3.0')
+import re
 
 from pathlib import Path
 
@@ -94,6 +95,10 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         for i in range(1,8):
             self.aya_store.append([f"{i}"])
         self.aya_combo.set_active(0)
+        # Get the entry widget embedded in the combo box
+        entry = self.aya_combo.get_child()
+        # Connect the "changed" signal of the entry to a callback
+        entry.connect("changed", self.on_changed_aya_combo)
         # endregion
 
         self.ok_button = builder.get_object("ok_button")
@@ -101,19 +106,34 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         self.ok_button.connect("clicked", self.on_ok_button_clicked)
         self.cancel_button.connect("clicked", lambda x: self.dialog.close())
 
+        # self.ok_button.grab_focus()
+
+    def on_changed_aya_combo(self, entry):
+        # Get the current text content inside the entry
+        text_content = entry.get_text()
+        digit_only = re.sub(r'\D', '', text_content)
+        # Block the signal temporarily to avoid recursion
+        entry.handler_block_by_func(self.on_changed_aya_combo)
+        aya = self.quran.suras_ayat[int(self._get_active_iter_combo(self.sura_combo).split(".")[0])-1]
+        num = 0 if digit_only=="" else int(digit_only)
+        entry.set_text(digit_only if num<=aya else f"{aya}")
+        # Unblock the signal
+        entry.handler_unblock_by_func(self.on_changed_aya_combo)
+
     def _get_active_iter_combo(self, widget):
-        active_iter = widget.get_active_iter()
-        if active_iter is not None:
-            model = widget.get_model()
-            active_text = model[active_iter][0]
-            return active_text
+        entry = widget.get_child()
+        return entry.get_text()
+        # active_iter = widget.get_active_iter()
+        # if active_iter is not None:
+        #     model = widget.get_model()
+        #     active_text = model[active_iter][0]
+        #     return active_text
 
     def on_sura_name_changed(self, widget):
         active_sura = self._get_active_iter_combo(widget)
         if active_sura is not None:
             sura_order = int(active_sura.split(".")[0])-1
-            print(f"Selected: {active_sura}", end=" ")
-            print(f"has total {self.quran.suras_ayat[sura_order]} of Ayat.")
+            print(f"{active_sura} has total {self.quran.suras_ayat[sura_order]} of Ayat.")
             cell = Gtk.CellRendererText()
             self.aya_combo.pack_start(cell, True)
             # self.aya_combo.add_attribute(cell, "text", 0)
@@ -127,7 +147,10 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         # Handle OK button click
         self.dialog.response(Gtk.ResponseType.ACCEPT)
         sura = int(self._get_active_iter_combo(self.sura_combo).split(".")[0])
-        aya = int(self._get_active_iter_combo(self.aya_combo))
+        try:
+            aya = int(self._get_active_iter_combo(self.aya_combo))
+        except (ValueError, TypeError):
+            return
         verse = self.quran.get_verse(sura, aya).split("|")[-1]
 
         view = self.window.get_active_view()

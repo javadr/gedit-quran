@@ -136,7 +136,8 @@
                 <property name="entry-text-column">0</property>
                 <child internal-child="entry">
                   <object class="GtkEntry">
-                    <property name="can-focus">False</property>
+                    <property name="can-focus">True</property>
+                    <property name="overwrite-mode">True</property>
                   </object>
                 </child>
               </object>
