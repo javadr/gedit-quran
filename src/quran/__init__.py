@@ -69,12 +69,13 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         builder.add_from_file(str(SOURCE_DIR/"quran.glade"))
         # builder.connect_signals(Handler(self))
         self.dialog = builder.get_object("quran_window")
-        self.sura_combo = builder.get_object("sura_combo")
-        self.sura_store = builder.get_object("sura_store")
-        self.aya_combo = builder.get_object("aya_combo")
-        self.aya_store = builder.get_object("aya_store")
+        self.surah_combo = builder.get_object("surah_combo")
+        self.surah_store = builder.get_object("surah_store")
+        self.ayah_combo = builder.get_object("ayah_combo")
+        self.ayah_store = builder.get_object("ayah_store")
         self.ok_button = builder.get_object("ok_button")
         self.cancel_button = builder.get_object("cancel_button")
+        self.ayah_address_checkbox = builder.get_object("ayah_address_checkbox")
 
         # builder.connect_signals(Handler(self))
         self.window.get_group().add_window(self.dialog)
@@ -87,21 +88,21 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
 
         # region ComboBox for Sura #############################################
         # Set RTL text direction for the GtkCellRendererText
-        cell_renderer = self.sura_combo.get_cells()[0]
+        cell_renderer = self.surah_combo.get_cells()[0]
         cell_renderer.set_property("xalign", 1.0)  # Align text to the right
         for i, (arabic, english) in enumerate(zip(self.quran.suras_ar, self.quran.suras_en), 1):
-            self.sura_store.append([f"{i: 3}. {arabic} ({english})"])
-        self.sura_combo.set_active(0)
-        self.sura_combo.connect("changed", self.on_sura_name_changed)
+            self.surah_store.append([f"{i: 3}. {arabic} ({english})"])
+        self.surah_combo.set_active(0)
+        self.surah_combo.connect("changed", self.on_surah_name_changed)
         # endregion
         # region ComboBox for Aya ##############################################
         for i in range(1,8):
-            self.aya_store.append([f"{i}"])
-        self.aya_combo.set_active(0)
+            self.ayah_store.append([f"{i}"])
+        self.ayah_combo.set_active(0)
         # Get the entry widget embedded in the combo box
-        entry = self.aya_combo.get_child()
+        entry = self.ayah_combo.get_child()
         # Connect the "changed" signal of the entry to a callback
-        entry.connect("changed", self.on_changed_aya_combo)
+        entry.connect("changed", self.on_changed_ayah_combo)
         entry.connect("activate", self.on_entry_activate, self.ok_button)
         # endregion ############################################################
         self.ok_button.connect("clicked", self.on_ok_button_clicked)
@@ -114,17 +115,17 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         # Trigger the button's clicked event
         button.clicked()
 
-    def on_changed_aya_combo(self, entry):
+    def on_changed_ayah_combo(self, entry):
         # Get the current text content inside the entry
         text_content = entry.get_text()
         digit_only = re.sub(r'\D', '', text_content)
         # Block the signal temporarily to avoid recursion
-        entry.handler_block_by_func(self.on_changed_aya_combo)
-        aya = self.quran.suras_ayat[int(self._get_active_iter_combo(self.sura_combo).split(".")[0])-1]
+        entry.handler_block_by_func(self.on_changed_ayah_combo)
+        ayah = self.quran.suras_ayat[int(self._get_active_iter_combo(self.surah_combo).split(".")[0])-1]
         num = 0 if digit_only=="" else int(digit_only)
-        entry.set_text(digit_only if num<=aya else f"{aya}")
+        entry.set_text(digit_only if num<=ayah else f"{ayah}")
         # Unblock the signal
-        entry.handler_unblock_by_func(self.on_changed_aya_combo)
+        entry.handler_unblock_by_func(self.on_changed_ayah_combo)
 
     def _get_active_iter_combo(self, widget):
         entry = widget.get_child()
@@ -135,29 +136,31 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         #     active_text = model[active_iter][0]
         #     return active_text
 
-    def on_sura_name_changed(self, widget):
-        active_sura = self._get_active_iter_combo(widget)
-        if active_sura is not None:
-            sura_order = int(active_sura.split(".")[0])-1
-            print(f"{active_sura} has total {self.quran.suras_ayat[sura_order]} of Ayat.")
+    def on_surah_name_changed(self, widget):
+        active_surah = self._get_active_iter_combo(widget)
+        if active_surah is not None:
+            surah_order = int(active_surah.split(".")[0])-1
+            print(f"{active_surah} has total {self.quran.suras_ayat[surah_order]} of Ayat.")
             cell = Gtk.CellRendererText()
-            self.aya_combo.pack_start(cell, True)
-            # self.aya_combo.add_attribute(cell, "text", 0)
-            self.aya_store.clear()
-            for i in range(1,self.quran.suras_ayat[sura_order]+1):
-                self.aya_store.append([f"{i}"])
-            self.aya_combo.set_active(0)
+            self.ayah_combo.pack_start(cell, True)
+            # self.ayah_combo.add_attribute(cell, "text", 0)
+            self.ayah_store.clear()
+            for i in range(1,self.quran.suras_ayat[surah_order]+1):
+                self.ayah_store.append([f"{i}"])
+            self.ayah_combo.set_active(0)
 
 
     def on_ok_button_clicked(self, widget):
         # Handle OK button click
         self.dialog.response(Gtk.ResponseType.ACCEPT)
-        sura = int(self._get_active_iter_combo(self.sura_combo).split(".")[0])
+        surah = int(self._get_active_iter_combo(self.surah_combo).split(".")[0])
         try:
-            aya = int(self._get_active_iter_combo(self.aya_combo))
+            ayah = int(self._get_active_iter_combo(self.ayah_combo))
         except (ValueError, TypeError):
             return
-        verse = self.quran.get_verse(sura, aya).split("|")[-1]
+        verse = self.quran.get_verse(surah, ayah).split("|")[-1]
+        if self.ayah_address_checkbox.get_active():
+            verse += f" ﴿{self.quran.suras_ar[surah-1]} {ayah}﴾"
 
         view = self.window.get_active_view()
         cursor_position = view.get_buffer().get_iter_at_mark(view.get_buffer().get_insert())
