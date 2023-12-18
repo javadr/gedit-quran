@@ -69,6 +69,13 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         builder.add_from_file(str(SOURCE_DIR/"quran.glade"))
         # builder.connect_signals(Handler(self))
         self.dialog = builder.get_object("quran_window")
+        self.sura_combo = builder.get_object("sura_combo")
+        self.sura_store = builder.get_object("sura_store")
+        self.aya_combo = builder.get_object("aya_combo")
+        self.aya_store = builder.get_object("aya_store")
+        self.ok_button = builder.get_object("ok_button")
+        self.cancel_button = builder.get_object("cancel_button")
+
         # builder.connect_signals(Handler(self))
         self.window.get_group().add_window(self.dialog)
 
@@ -79,19 +86,15 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         self.dialog.connect('destroy', self.on_dialog_destroy)
 
         # region ComboBox for Sura #############################################
-        self.sura_combo = builder.get_object("sura_combo")
         # Set RTL text direction for the GtkCellRendererText
         cell_renderer = self.sura_combo.get_cells()[0]
         cell_renderer.set_property("xalign", 1.0)  # Align text to the right
-        self.sura_store = builder.get_object("sura_store")
         for i, (arabic, english) in enumerate(zip(self.quran.suras_ar, self.quran.suras_en), 1):
             self.sura_store.append([f"{i: 3}. {arabic} ({english})"])
         self.sura_combo.set_active(0)
         self.sura_combo.connect("changed", self.on_sura_name_changed)
         # endregion
         # region ComboBox for Aya ##############################################
-        self.aya_combo = builder.get_object("aya_combo")
-        self.aya_store = builder.get_object("aya_store")
         for i in range(1,8):
             self.aya_store.append([f"{i}"])
         self.aya_combo.set_active(0)
@@ -99,14 +102,17 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         entry = self.aya_combo.get_child()
         # Connect the "changed" signal of the entry to a callback
         entry.connect("changed", self.on_changed_aya_combo)
-        # endregion
-
-        self.ok_button = builder.get_object("ok_button")
-        self.cancel_button = builder.get_object("cancel_button")
+        entry.connect("activate", self.on_entry_activate, self.ok_button)
+        # endregion ############################################################
         self.ok_button.connect("clicked", self.on_ok_button_clicked)
         self.cancel_button.connect("clicked", lambda x: self.dialog.close())
 
         # self.ok_button.grab_focus()
+
+    def on_entry_activate(self, entry, button):
+        # This function is called when Enter key is pressed in the entry
+        # Trigger the button's clicked event
+        button.clicked()
 
     def on_changed_aya_combo(self, entry):
         # Get the current text content inside the entry
