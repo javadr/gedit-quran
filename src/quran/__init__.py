@@ -70,8 +70,10 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         self.dialog = builder.get_object("quran_window")
         self.surah_combo = builder.get_object("surah_combo")
         self.surah_store = builder.get_object("surah_store")
-        self.ayah_combo = builder.get_object("ayah_combo")
-        self.ayah_store = builder.get_object("ayah_store")
+        self.from_ayah_combo = builder.get_object("from_ayah_combo")
+        self.to_ayah_combo = builder.get_object("to_ayah_combo")
+        self.from_ayah_store = builder.get_object("from_ayah_store")
+        self.to_ayah_store = builder.get_object("to_ayah_store")
         self.ok_button = builder.get_object("ok_button")
         self.cancel_button = builder.get_object("cancel_button")
         self.ayah_address_checkbox = builder.get_object("ayah_address_checkbox")
@@ -96,13 +98,20 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         # endregion
         # region ComboBox for Aya ##############################################
         for i in range(1,8):
-            self.ayah_store.append([f"{i}"])
-        self.ayah_combo.set_active(0)
+            self.from_ayah_store.append([f"{i}"])
+        self.from_ayah_combo.set_active(0)
+        for i in range(1,8):
+            self.to_ayah_store.append([f"{i}"])
+        self.to_ayah_combo.set_active(0)
         # Get the entry widget embedded in the combo box
-        entry = self.ayah_combo.get_child()
+        entry = self.from_ayah_combo.get_child()
         # Connect the "changed" signal of the entry to a callback
         entry.connect("changed", self.on_changed_ayah_combo)
         entry.connect("activate", self.on_entry_activate, self.ok_button)
+        entry = self.to_ayah_combo.get_child()
+        # Connect the "changed" signal of the entry to a callback
+        entry.connect("activate", self.on_entry_activate, self.ok_button)
+
         # endregion ############################################################
         self.ok_button.connect("clicked", self.on_ok_button_clicked)
         self.cancel_button.connect("clicked", lambda x: self.dialog.close())
@@ -122,7 +131,10 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         entry.handler_block_by_func(self.on_changed_ayah_combo)
         ayah = self.quran.suras_ayat[int(self._get_active_iter_combo(self.surah_combo).split(".")[0])-1]
         num = 0 if digit_only=="" else int(digit_only)
-        entry.set_text(digit_only if num<=ayah else f"{ayah}")
+        digit = digit_only if num<=ayah else f"{ayah}"
+        entry.set_text(digit)
+        to_entry = self.to_ayah_combo.get_child()
+        to_entry.set_text(digit)
         # Unblock the signal
         entry.handler_unblock_by_func(self.on_changed_ayah_combo)
 
@@ -141,12 +153,12 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
             surah_order = int(active_surah.split(".")[0])-1
             print(f"{active_surah} has total {self.quran.suras_ayat[surah_order]} of Ayat.")
             cell = Gtk.CellRendererText()
-            self.ayah_combo.pack_start(cell, True)
-            # self.ayah_combo.add_attribute(cell, "text", 0)
-            self.ayah_store.clear()
+            self.from_ayah_combo.pack_start(cell, True)
+            # self.from_ayah_combo.add_attribute(cell, "text", 0)
+            self.from_ayah_store.clear()
             for i in range(1,self.quran.suras_ayat[surah_order]+1):
-                self.ayah_store.append([f"{i}"])
-            self.ayah_combo.set_active(0)
+                self.from_ayah_store.append([f"{i}"])
+            self.from_ayah_combo.set_active(0)
 
 
     def on_ok_button_clicked(self, widget):
@@ -161,12 +173,20 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         self.dialog.response(Gtk.ResponseType.ACCEPT)
         surah = int(self._get_active_iter_combo(self.surah_combo).split(".")[0])
         try:
-            ayah = int(self._get_active_iter_combo(self.ayah_combo))
+            from_ayah = int(self._get_active_iter_combo(self.from_ayah_combo))
+            to_ayah = int(self._get_active_iter_combo(self.to_ayah_combo))
         except (ValueError, TypeError):
             return
-        verse = self.quran.get_verse(surah, ayah).split("|")[-1]
-        if self.ayah_address_checkbox.get_active():
-            verse += f" ﴿{self.quran.suras_ar[surah-1]} {ayah}﴾"
+        verse = " ".join(
+            [
+            self.quran.get_verse(surah, ayah).split("|")[-1]
+            + f" ﴿{self.quran.suras_ar[surah-1] if from_ayah==to_ayah else ''}{ayah}﴾"
+            if self.ayah_address_checkbox.get_active() else ""
+            for ayah in range(from_ayah, to_ayah+1)
+            ]
+        )
+        # if self.ayah_address_checkbox.get_active():
+        #     verse += f" ﴿{self.quran.suras_ar[surah-1]} {ayah}﴾"
         pre = " " if cursor_position.get_line_offset() and char_before_cursor!=" " else ""
         verse = f"{pre}{verse} "
         buffer.insert(cursor_position, verse)
