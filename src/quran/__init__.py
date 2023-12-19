@@ -151,6 +151,13 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
 
 
     def on_ok_button_clicked(self, widget):
+        buffer = self.window.get_active_view().get_buffer()
+        cursor_position = buffer.get_iter_at_mark(buffer.get_insert())
+
+        cursor_position.backward_char()
+        char_before_cursor = cursor_position.get_text(buffer.get_iter_at_mark(buffer.get_insert()))
+        cursor_position.forward_char()
+
         # Handle OK button click
         self.dialog.response(Gtk.ResponseType.ACCEPT)
         surah = int(self._get_active_iter_combo(self.surah_combo).split(".")[0])
@@ -161,10 +168,9 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         verse = self.quran.get_verse(surah, ayah).split("|")[-1]
         if self.ayah_address_checkbox.get_active():
             verse += f" ﴿{self.quran.suras_ar[surah-1]} {ayah}﴾"
-
-        view = self.window.get_active_view()
-        cursor_position = view.get_buffer().get_iter_at_mark(view.get_buffer().get_insert())
-        view.get_buffer().insert(cursor_position, verse)
+        pre = ' ' if cursor_position.get_line_offset() and char_before_cursor!=' ' else ''
+        verse = f"{pre}{verse} "
+        buffer.insert(cursor_position, verse)
 
         self.dialog.close()
 
