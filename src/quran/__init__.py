@@ -132,10 +132,12 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         entry.handler_block_by_func(self.on_changed_ayah_combo)
         ayah = self.quran.suras_ayat[int(self._get_active_iter_combo(self.surah_combo).split(".")[0])-1]
         num = 0 if digit_only=="" else int(digit_only)
-        digit = digit_only if num<=ayah else f"{ayah}"
-        entry.set_text(digit)
-        to_entry = self.to_ayah_combo.get_child()
-        to_entry.set_text(digit)
+        from_ayah = digit_only if num<=ayah else ayah
+        entry.set_text(f"{from_ayah}")
+        to_ayah = int(self._get_active_iter_combo(self.to_ayah_combo))
+        if num > to_ayah:
+            to_entry = self.to_ayah_combo.get_child()
+            to_entry.set_text(f"{from_ayah}")
         # Unblock the signal
         entry.handler_unblock_by_func(self.on_changed_ayah_combo)
 
