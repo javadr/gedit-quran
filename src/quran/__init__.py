@@ -1,16 +1,15 @@
 import gi
-gi.require_version('Gedit', '3.0')
-gi.require_version('Gtk', '3.0')
+gi.require_version("Gedit", "3.0")
+gi.require_version("Gtk", "3.0")
 import re
 
-from pathlib import Path
 
-from gi.repository import GObject, Gio, GLib, Gtk, Gedit
+from gi.repository import GObject, Gio, Gtk, Gedit
 from .quran import Quran, SOURCE_DIR
 try:
     import gettext
-    gettext.bindtextdomain('gedit')
-    gettext.textdomain('gedit')
+    gettext.bindtextdomain("gedit")
+    gettext.textdomain("gedit")
     _ = gettext.gettext
 except:
     _ = lambda s: s
@@ -56,7 +55,7 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         self.dialog = None
 
         action = Gio.SimpleAction(name="quran")
-        action.connect('activate', self.on_quran_activate)
+        action.connect("activate", self.on_quran_activate)
         self.window.add_action(action)
 
     def do_deactivate(self):
@@ -80,11 +79,11 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         # builder.connect_signals(Handler(self))
         self.window.get_group().add_window(self.dialog)
 
-        self.dialog.set_title('Quran')
+        self.dialog.set_title("Quran")
         self.dialog.set_default_size(*self.dialog_size)
         self.dialog.set_transient_for(self.window)
         self.dialog.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
-        self.dialog.connect('destroy', self.on_dialog_destroy)
+        self.dialog.connect("destroy", self.on_dialog_destroy)
 
         # region ComboBox for Sura #############################################
         # Set RTL text direction for the GtkCellRendererText
@@ -118,7 +117,7 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
     def on_changed_ayah_combo(self, entry):
         # Get the current text content inside the entry
         text_content = entry.get_text()
-        digit_only = re.sub(r'\D', '', text_content)
+        digit_only = re.sub(r"\D", "", text_content)
         # Block the signal temporarily to avoid recursion
         entry.handler_block_by_func(self.on_changed_ayah_combo)
         ayah = self.quran.suras_ayat[int(self._get_active_iter_combo(self.surah_combo).split(".")[0])-1]
@@ -168,7 +167,7 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         verse = self.quran.get_verse(surah, ayah).split("|")[-1]
         if self.ayah_address_checkbox.get_active():
             verse += f" ﴿{self.quran.suras_ar[surah-1]} {ayah}﴾"
-        pre = ' ' if cursor_position.get_line_offset() and char_before_cursor!=' ' else ''
+        pre = " " if cursor_position.get_line_offset() and char_before_cursor!=" " else ""
         verse = f"{pre}{verse} "
         buffer.insert(cursor_position, verse)
 

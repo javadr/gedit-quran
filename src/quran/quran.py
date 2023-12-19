@@ -37,7 +37,7 @@ class Quran:
 
     def get_verse(self, sura, aya):
         line_number = sum(self.suras_ayat[:sura-1]) + aya
-        with gzip.open(self.quran_file, 'rt') as gzipped_file:
+        with gzip.open(self.quran_file, "rt") as gzipped_file:
             gzipped_file.seek(self.line_index[line_number - 1])
             line = gzipped_file.readline()
         return line.strip()
