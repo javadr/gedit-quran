@@ -77,6 +77,7 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         self.ok_button = builder.get_object("ok_button")
         self.cancel_button = builder.get_object("cancel_button")
         self.ayah_address_checkbox = builder.get_object("ayah_address_checkbox")
+        self.newline_checkbox = builder.get_object("newline_checkbox")
 
         # builder.connect_signals(Handler(self))
         self.window.get_group().add_window(self.dialog)
@@ -177,7 +178,8 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
             to_ayah = int(self._get_active_iter_combo(self.to_ayah_combo))
         except (ValueError, TypeError):
             return
-        verse = " ".join(
+        sep = "\n" if self.newline_checkbox.get_active() else " "
+        verse = sep.join(
             [
             self.quran.get_verse(surah, ayah).split("|")[-1]
             + f" ﴿{self.quran.suras_ar[surah-1] if from_ayah==to_ayah else ''}{ayah}﴾"
@@ -188,7 +190,7 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         # if self.ayah_address_checkbox.get_active():
         #     verse += f" ﴿{self.quran.suras_ar[surah-1]} {ayah}﴾"
         pre = " " if cursor_position.get_line_offset() and char_before_cursor!=" " else ""
-        verse = f"{pre}{verse} "
+        verse = f"{pre}{verse}{sep}"
         buffer.insert(cursor_position, verse)
 
         self.dialog.close()
