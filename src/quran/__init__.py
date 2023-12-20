@@ -170,19 +170,18 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         except (ValueError, TypeError):
             return
         sep = "\n" if self.newline_checkbox.get_active() else " "
-        verse = sep.join(
+        Ayat = self.quran.get_verse(surah, from_ayah, to_ayah)
+        decorated_verses = sep.join(
             [
-            self.quran.get_verse(surah, ayah).split("|")[-1]
-            + f" ﴿{self.quran.suras_ar[surah-1] if from_ayah==to_ayah else ''}{ayah}﴾"
+            ayah
+            + f" ﴿{self.quran.suras_ar[surah-1] if from_ayah==to_ayah else ''}{num}﴾"
             if self.ayah_address_checkbox.get_active() else ""
-            for ayah in range(from_ayah, to_ayah+1)
+            for (ayah, num) in Ayat
             ],
         )
-        # if self.ayah_address_checkbox.get_active():
-        #     verse += f" ﴿{self.quran.suras_ar[surah-1]} {ayah}﴾"
         pre = " " if cursor_position.get_line_offset() and char_before_cursor!=" " else ""
-        verse = f"{pre}{verse}{sep}"
-        buffer.insert(cursor_position, verse)
+        output = f"{pre}{decorated_verses}{sep}"
+        buffer.insert(cursor_position, output)
 
         self.dialog.close()
 

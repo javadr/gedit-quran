@@ -1,7 +1,7 @@
 import gzip
 
 from pathlib import Path
-from typing import Tuple, Union
+from typing import Tuple, List, Union
 
 # region ############### CONSTANTs #################################
 SOURCE_DIR = Path(__file__).parent.resolve()
@@ -35,9 +35,14 @@ class Quran:
                 position = gzipped_file.tell()
         return tuple(index)
 
-    def get_verse(self, sura, aya):
-        line_number = sum(self.suras_ayat[:sura-1]) + aya
+    def get_verse(self, sura, from_ayah, to_ayah=None):
+        Ayat: List(str, int) = []
+        if to_ayah is None:
+            to_ayah = from_ayah
         with gzip.open(self.quran_file, "rt") as gzipped_file:
-            gzipped_file.seek(self.line_index[line_number - 1])
-            line = gzipped_file.readline()
-        return line.strip()
+            line_number = sum(self.suras_ayat[:sura-1]) + from_ayah # first ayah
+            for ayah in range(to_ayah - from_ayah + 1):
+                gzipped_file.seek(self.line_index[line_number - 1 + ayah])
+                num, verse = gzipped_file.readline().strip().split("|")[1:]
+                Ayat.append((verse, num))
+        return Ayat
