@@ -2,7 +2,7 @@ import gi
 import re
 
 
-from gi.repository import GObject, Gio, Gtk, Gedit
+from gi.repository import GObject, Gio, Gtk, Gdk, Gedit
 from .quran import Quran, SOURCE_DIR
 
 gi.require_version("Gedit", "3.0")
@@ -76,7 +76,7 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         self.dialog.set_transient_for(self.window)
         self.dialog.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
         self.dialog.connect("destroy", self.on_dialog_destroy)
-
+        self.dialog.connect("key-press-event", self.on_key_press)
         # region ComboBox for Sura #############################################
         # Set RTL text direction for the GtkCellRendererText
         cell_renderer = self.surah_combo.get_cells()[0]
@@ -106,6 +106,9 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         self.cancel_button.connect("clicked", lambda x: self.dialog.close())
 
         # self.ok_button.grab_focus()
+    def on_key_press(self, widget, event):
+        if event.keyval == Gdk.KEY_Escape:
+            self.dialog.destroy()
 
     def on_entry_activate(self, entry, button):
         # This function is called when Enter key is pressed in the entry
