@@ -171,10 +171,11 @@
                 <property name="layout-style">start</property>
                 <child>
                   <object class="GtkCheckButton" id="ayah_address_checkbox">
-                    <property name="label" translatable="yes">Ayah Address</property>
+                    <property name="label" translatable="yes">_Ayah Address</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">False</property>
+                    <property name="use-underline">True</property>
                     <property name="active">True</property>
                     <property name="draw-indicator">True</property>
                   </object>
@@ -186,10 +187,11 @@
                 </child>
                 <child>
                   <object class="GtkCheckButton" id="newline_checkbox">
-                    <property name="label" translatable="yes">New Line</property>
+                    <property name="label" translatable="yes">_New Line</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">False</property>
+                    <property name="use-underline">True</property>
                     <property name="draw-indicator">True</property>
                   </object>
                   <packing>
@@ -227,10 +229,11 @@
                 <property name="layout-style">start</property>
                 <child>
                   <object class="GtkButton" id="cancel_button">
-                    <property name="label" translatable="yes">Cancel</property>
+                    <property name="label" translatable="yes">_Cancel</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
+                    <property name="use-underline">True</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -240,10 +243,11 @@
                 </child>
                 <child>
                   <object class="GtkButton" id="ok_button">
-                    <property name="label" translatable="yes">OK</property>
+                    <property name="label" translatable="yes">_OK</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
+                    <property name="use-underline">True</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
