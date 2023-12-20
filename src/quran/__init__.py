@@ -1,19 +1,12 @@
 import gi
-gi.require_version("Gedit", "3.0")
-gi.require_version("Gtk", "3.0")
 import re
 
 
 from gi.repository import GObject, Gio, Gtk, Gedit
 from .quran import Quran, SOURCE_DIR
-try:
-    import gettext
-    gettext.bindtextdomain("gedit")
-    gettext.textdomain("gedit")
-    _ = gettext.gettext
-except:
-    _ = lambda s: s
 
+gi.require_version("Gedit", "3.0")
+gi.require_version("Gtk", "3.0")
 
 class QuranAppActivatable(GObject.Object, Gedit.AppActivatable):
     app = GObject.Property(type=Gedit.App)
@@ -25,7 +18,7 @@ class QuranAppActivatable(GObject.Object, Gedit.AppActivatable):
         self.app.add_accelerator("<Alt>q", "win.quran", None)
 
         self.menu_ext = self.extend_menu("tools-section")
-        item = Gio.MenuItem.new(_("Quran…"), "win.quran")
+        item = Gio.MenuItem.new("Quran…", "win.quran")
         self.menu_ext.prepend_menu_item(item)
 
     def do_deactivate(self):
@@ -62,22 +55,18 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         self.window.remove_action("quran")
 
     def _create_dialog(self):
-        doc = self.window.get_active_document()
-
+        """Create dialog box."""
         builder = Gtk.Builder()
         builder.add_from_file(str(SOURCE_DIR/"quran.glade"))
         # builder.connect_signals(Handler(self))
         self.dialog = builder.get_object("quran_window")
-        self.surah_combo = builder.get_object("surah_combo")
-        self.surah_store = builder.get_object("surah_store")
-        self.from_ayah_combo = builder.get_object("from_ayah_combo")
-        self.to_ayah_combo = builder.get_object("to_ayah_combo")
-        self.from_ayah_store = builder.get_object("from_ayah_store")
-        self.to_ayah_store = builder.get_object("to_ayah_store")
-        self.ok_button = builder.get_object("ok_button")
-        self.cancel_button = builder.get_object("cancel_button")
-        self.ayah_address_checkbox = builder.get_object("ayah_address_checkbox")
-        self.newline_checkbox = builder.get_object("newline_checkbox")
+        for item in (
+                "surah_store", "from_ayah_store", "to_ayah_store",
+                "surah_combo", "from_ayah_combo", "to_ayah_combo",
+                "ayah_address_checkbox","newline_checkbox",
+                "ok_button", "cancel_button",
+            ):
+            setattr(self, item, builder.get_object(item))
 
         # builder.connect_signals(Handler(self))
         self.window.get_group().add_window(self.dialog)
@@ -154,7 +143,7 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         active_surah = self._get_active_iter_combo(widget)
         if active_surah is not None:
             surah_order = int(active_surah.split(".")[0])-1
-            print(f"{active_surah} has total {self.quran.suras_ayat[surah_order]} of Ayat.")
+            # print(f"{active_surah} has total {self.quran.suras_ayat[surah_order]} of Ayat.")
             cell = Gtk.CellRendererText()
             self.from_ayah_combo.pack_start(cell, True)
             # self.from_ayah_combo.add_attribute(cell, "text", 0)
@@ -173,7 +162,7 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         cursor_position.forward_char()
 
         # Handle OK button click
-        self.dialog.response(Gtk.ResponseType.ACCEPT)
+        # self.dialog.response(Gtk.ResponseType.ACCEPT)
         surah = int(self._get_active_iter_combo(self.surah_combo).split(".")[0])
         try:
             from_ayah = int(self._get_active_iter_combo(self.from_ayah_combo))
@@ -187,7 +176,7 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
             + f" ﴿{self.quran.suras_ar[surah-1] if from_ayah==to_ayah else ''}{ayah}﴾"
             if self.ayah_address_checkbox.get_active() else ""
             for ayah in range(from_ayah, to_ayah+1)
-            ]
+            ],
         )
         # if self.ayah_address_checkbox.get_active():
         #     verse += f" ﴿{self.quran.suras_ar[surah-1]} {ayah}﴾"
