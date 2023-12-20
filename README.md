@@ -1,5 +1,4 @@
 # gedit-quran
-Typeset quran text in gedit
 
 This plugin facilitates the accurate typesetting of Holy Quran verses within the gedit text editor.
 
@@ -37,8 +36,8 @@ you can seamlessly access it in two ways:
 
 Enjoy typesetting Quranic verses in your `gedit`` editor!
 
-<p align="center"><img src="images/quran-dialog.png" alt="quran-dialog" width="40%" /></p>
-<p align="center"><img src="images/gedit-window.png" alt="gedit-window" width="80%" /></p>
+<p align="center"><img src="images/quran-dialog.png" alt="quran-dialog" width="50%" /></p>
+<p align="center"><img src="images/gedit-window.png" alt="gedit-window" width="100%" /></p>
 
 ## Contributing
 
