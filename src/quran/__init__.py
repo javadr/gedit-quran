@@ -96,12 +96,11 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         # Get the entry widget embedded in the combo box
         entry = self.from_ayah_combo.get_child()
         # Connect the "changed" signal of the entry to a callback
-        entry.connect("changed", self.on_changed_ayah_combo)
+        entry.connect("changed", self.on_changed_ayah_combo, "from")
         entry.connect("activate", self.on_entry_activate, self.ok_button)
         entry = self.to_ayah_combo.get_child()
-        # Connect the "changed" signal of the entry to a callback
+        entry.connect("changed", self.on_changed_ayah_combo, "to")
         entry.connect("activate", self.on_entry_activate, self.ok_button)
-
         # endregion ############################################################
         self.ok_button.connect("clicked", self.on_ok_button_clicked)
         self.cancel_button.connect("clicked", lambda x: self.dialog.close())
@@ -113,7 +112,7 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         # Trigger the button's clicked event
         button.clicked()
 
-    def on_changed_ayah_combo(self, entry):
+    def on_changed_ayah_combo(self, entry, form_or_to="from"):
         # Get the current text content inside the entry
         text_content = entry.get_text()
         digit_only = re.sub(r"\D", "", text_content)
@@ -123,10 +122,18 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         num = 0 if digit_only=="" else int(digit_only)
         from_ayah = digit_only if num<=ayah else ayah
         entry.set_text(f"{from_ayah}")
-        to_ayah = int(self._get_active_iter_combo(self.to_ayah_combo))
-        if num > to_ayah:
-            to_entry = self.to_ayah_combo.get_child()
-            to_entry.set_text(f"{from_ayah}")
+        # The following makes two combos (from/to) sync such that from <= to
+        if form_or_to=="from":
+            to_ayah = int(self._get_active_iter_combo(self.to_ayah_combo))
+            if num > to_ayah:
+                to_entry = self.to_ayah_combo.get_child()
+                to_entry.set_text(f"{from_ayah}")
+        else:
+            to_ayah = int(self._get_active_iter_combo(self.from_ayah_combo))
+            if num < to_ayah:
+                to_entry = self.from_ayah_combo.get_child()
+                to_entry.set_text(f"{num}")
+
         # Unblock the signal
         entry.handler_unblock_by_func(self.on_changed_ayah_combo)
 
@@ -148,10 +155,11 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
             self.from_ayah_combo.pack_start(cell, True)
             # self.from_ayah_combo.add_attribute(cell, "text", 0)
             self.from_ayah_store.clear()
+            self.to_ayah_store.clear()
             for i in range(1,self.quran.suras_ayat[surah_order]+1):
                 self.from_ayah_store.append([f"{i}"])
-            self.from_ayah_combo.set_active(0)
-
+                self.to_ayah_store.append([f"{i}"])
+            # self.from_ayah_combo.set_active(0)
 
     def on_ok_button_clicked(self, widget):
         buffer = self.window.get_active_view().get_buffer()
