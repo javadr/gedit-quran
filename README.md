@@ -48,7 +48,7 @@ The `gedit-quran` plugin offers several customization options to tailor your exp
 
 2. **NewLine Character:** Typesets each Ayah on a separate line for improved readability.
 
-3. **LaTeX Integration:** Utilize the `LaTeX` command to incorporate the `LaTeX` macro, in conjunction with the [quran](https://github.com/javadr/quran) LaTeX package.
+3. **LaTeX Integration:** Utilizes the `LaTeX` command to incorporate the `LaTeX` macro, in conjunction with the [quran](https://github.com/javadr/quran) LaTeX package.
 
 
 ## Contributing
