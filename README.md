@@ -39,6 +39,17 @@ Enjoy typesetting Quranic verses in your `gedit`` editor!
 <p align="center"><img src="images/quran-dialog.png" alt="quran-dialog" width="50%" /></p>
 <p align="center"><img src="images/gedit-window.png" alt="gedit-window" width="100%" /></p>
 
+## Options
+
+The `gedit-quran` plugin offers several customization options to tailor your experience:
+
+1. **Ayah Number:** Appends the Ayah number to the end of each Ayah.
+
+2. **NewLine Character:** Typesets each Ayah on a separate line for improved readability.
+
+3. **LaTeX Integration:** Utilize the `LaTeX` command to incorporate the `LaTeX` macro, in conjunction with the [quran LaTeX package](http://ctan.org/pkg/quran).
+
+
 ## Contributing
 
 Feel free to contribute by opening issues or submitting pull requests.
