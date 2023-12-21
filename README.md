@@ -9,6 +9,8 @@ This plugin facilitates the accurate typesetting of Holy Quran verses within the
 Run the following command in your terminal:
 
 ```sh
+git clone https://github.com/javadr/gedit-quran.git
+cd gedit-quran
 make install
 ```
 
