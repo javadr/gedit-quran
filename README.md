@@ -14,7 +14,7 @@ make install
 
 ### Option 2: Manual Installation
 
-Download the ZIP file and move the extracted files to your gedit plugin directory (usually located at `~/.local/share/gedit/plugins/`), or clone the repository using Git:
+Download the ZIP file and move the extracted files to your `gedit` plugin directory (usually located at `~/.local/share/gedit/plugins/`), or clone the repository using Git:
 
 ```sh
 mkdir -p ~/.local/share/gedit/plugins
@@ -34,7 +34,7 @@ you can seamlessly access it in two ways:
 2. **Shortcut Key:**
    Use the shortcut `<Alt> + q` to quickly access the plugin without navigating through menus.
 
-Enjoy typesetting Quranic verses in your `gedit`` editor!
+Enjoy typesetting Quranic verses in your `gedit` editor!
 
 <p align="center"><img src="images/quran-dialog.png" alt="quran-dialog" width="50%" /></p>
 <p align="center"><img src="images/gedit-window.png" alt="gedit-window" width="100%" /></p>
@@ -47,7 +47,7 @@ The `gedit-quran` plugin offers several customization options to tailor your exp
 
 2. **NewLine Character:** Typesets each Ayah on a separate line for improved readability.
 
-3. **LaTeX Integration:** Utilize the `LaTeX` command to incorporate the `LaTeX` macro, in conjunction with the [quran](http://ctan.org/pkg/quran) LaTeX package.
+3. **LaTeX Integration:** Utilize the `LaTeX` command to incorporate the `LaTeX` macro, in conjunction with the [quran](https://github.com/javadr/quran) LaTeX package.
 
 
 ## Contributing
