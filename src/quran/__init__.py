@@ -64,7 +64,7 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
                 "surah_store", "from_ayah_store", "to_ayah_store",
                 "surah_combo", "from_ayah_combo", "to_ayah_combo",
                 "ayah_address_checkbox","newline_checkbox",
-                "ok_button", "cancel_button",
+                "latex_command_checkbox", "ok_button", #"cancel_button",
             ):
             setattr(self, item, builder.get_object(item))
 
@@ -103,7 +103,7 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         entry.connect("activate", self.on_entry_activate, self.ok_button)
         # endregion ############################################################
         self.ok_button.connect("clicked", self.on_ok_button_clicked)
-        self.cancel_button.connect("clicked", lambda x: self.dialog.close())
+        # self.cancel_button.connect("clicked", lambda x: self.dialog.close())
 
         # self.ok_button.grab_focus()
     def on_key_press(self, widget, event):
@@ -135,7 +135,7 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
             to_ayah = int(self._get_active_iter_combo(self.from_ayah_combo))
             if num < to_ayah:
                 to_entry = self.from_ayah_combo.get_child()
-                to_entry.set_text(f"{num}")
+                to_entry.set_text(f"{to_ayah}")
 
         # Unblock the signal
         entry.handler_unblock_by_func(self.on_changed_ayah_combo)
@@ -180,18 +180,24 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
             to_ayah = int(self._get_active_iter_combo(self.to_ayah_combo))
         except (ValueError, TypeError):
             return
-        sep = "\n" if self.newline_checkbox.get_active() else " "
-        Ayat = self.quran.get_verse(surah, from_ayah, to_ayah)
-        decorated_verses = sep.join(
-            [
-            ayah
-            + f" ﴿{self.quran.suras_ar[surah-1] if from_ayah==to_ayah else ''}{num}﴾"
-            if self.ayah_address_checkbox.get_active() else ""
-            for (ayah, num) in Ayat
-            ],
-        )
-        pre = " " if cursor_position.get_line_offset() and char_before_cursor!=" " else ""
-        output = f"{pre}{decorated_verses}{sep}"
+        if self.latex_command_checkbox.get_active():
+            output = f"\\quranayah[{self.quran.suras_en[surah-1]}]"
+            output += f"[{from_ayah}"
+            output += f"-{to_ayah}]" if from_ayah!=to_ayah else "]"
+        else:
+            sep = "\n" if self.newline_checkbox.get_active() else " "
+            Ayat = self.quran.get_verse(surah, from_ayah, to_ayah)
+            decorated_verses = sep.join(
+                [
+                ayah
+                + f" ﴿{self.quran.suras_ar[surah-1] if from_ayah==to_ayah else ''}{num}﴾"
+                if self.ayah_address_checkbox.get_active() else ""
+                for (ayah, num) in Ayat
+                ],
+            )
+            pre = " " if cursor_position.get_line_offset() and char_before_cursor!=" " else ""
+            output = f"{pre}{decorated_verses}{sep}"
+
         buffer.insert(cursor_position, output)
 
         self.dialog.close()
