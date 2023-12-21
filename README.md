@@ -18,8 +18,8 @@ Download the ZIP file and move the extracted files to your `gedit` plugin direct
 
 ```sh
 mkdir -p ~/.local/share/gedit/plugins
-cd ~/.local/share/gedit/plugins
 git clone https://github.com/javadr/gedit-quran.git
+cp -rfv gedit-quran/src/* ~/.local/share/gedit/plugins
 ```
 
 ## Usage
