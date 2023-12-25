@@ -1,12 +1,21 @@
 import gi
 import re
-
+import os
+import logging
 
 from gi.repository import GObject, Gio, Gtk, Gdk, Gedit
 from .quran import Quran, SOURCE_DIR
 
 gi.require_version("Gedit", "3.0")
 gi.require_version("Gtk", "3.0")
+
+logger = logging.getLogger("gedit-quran-plugin")
+logger.addHandler(logging.StreamHandler())
+if os.environ.get("GEDIT_QURAN_PLUGIN_DEBUG"):
+    logger.setLevel(logging.DEBUG)
+else:
+    logger.setLevel(logging.WARN)
+
 
 class QuranAppActivatable(GObject.Object, Gedit.AppActivatable):
     app = GObject.Property(type=Gedit.App)
@@ -153,7 +162,7 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         active_surah = self._get_active_iter_combo(widget)
         if active_surah is not None:
             surah_order = int(active_surah.split(".")[0])-1
-            # print(f"{active_surah} has total {self.quran.suras_ayat[surah_order]} of Ayat.")
+            logger.debug(f"{active_surah} has total {self.quran.suras_ayat[surah_order]} of Ayat.")
             cell = Gtk.CellRendererText()
             self.from_ayah_combo.pack_start(cell, True)
             # self.from_ayah_combo.add_attribute(cell, "text", 0)
@@ -178,6 +187,7 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         try:
             from_ayah = int(self._get_active_iter_combo(self.from_ayah_combo))
             to_ayah = int(self._get_active_iter_combo(self.to_ayah_combo))
+            logger.debug(f"Typesetting Surah {self.quran.suras_en[surah]} from Ayah {from_ayah} to {to_ayah}.")
         except (ValueError, TypeError):
             return
         if self.latex_command_checkbox.get_active():
