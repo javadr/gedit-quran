@@ -6,5 +6,5 @@ Name=Quran
 Description=Typeset text of the Holy Quran
 Authors=Javad Razavian
 Copyright=Copyright © 2023- Javad Razavian
-Website=http://www.gedit.org
-Version=2023-12-25
+Website=https://github.com/javadr/gedit-quran
+Version=2023-12-27
