@@ -42,10 +42,16 @@
             <property name="can-focus">False</property>
             <property name="spacing">10</property>
             <child>
-              <object class="GtkLabel">
+              <object class="GtkEventBox" id="surah_label_event_box">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Surah:</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Surah:</property>
+                  </object>
+                </child>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -85,10 +91,16 @@
             <property name="can-focus">False</property>
             <property name="spacing">10</property>
             <child>
-              <object class="GtkLabel">
+              <object class="GtkEventBox" id="from_ayah_event_box">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">From Ayah:</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">From Ayah:</property>
+                  </object>
+                </child>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -119,10 +131,16 @@
               </packing>
             </child>
             <child>
-              <object class="GtkLabel">
+              <object class="GtkEventBox" id="to_ayah_event_box">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">To:</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">To:</property>
+                  </object>
+                </child>
               </object>
               <packing>
                 <property name="expand">False</property>

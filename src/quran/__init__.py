@@ -74,6 +74,8 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
                 "surah_combo", "from_ayah_combo", "to_ayah_combo",
                 "ayah_address_checkbox","newline_checkbox",
                 "latex_command_checkbox", "ok_button", #"cancel_button",
+                "surah_label_event_box",
+                "from_ayah_event_box", "to_ayah_event_box",
             ):
             setattr(self, item, builder.get_object(item))
 
@@ -86,6 +88,9 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         self.dialog.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
         self.dialog.connect("destroy", self.on_dialog_destroy)
         self.dialog.connect("key-press-event", self.on_key_press)
+        self.surah_label_event_box.connect("button-press-event", self.on_surah_label_clicked)
+        self.from_ayah_event_box.connect("button-press-event", self.on_from_ayah_clicked)
+        self.to_ayah_event_box.connect("button-press-event", self.on_to_ayah_clicked)
         # region ComboBox for Sura #############################################
         # Set RTL text direction for the GtkCellRendererText
         cell_renderer = self.surah_combo.get_cells()[0]
@@ -115,6 +120,21 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         # self.cancel_button.connect("clicked", lambda x: self.dialog.close())
 
         # self.ok_button.grab_focus()
+
+    def on_from_ayah_clicked(self, widget, event):
+        to_entry = self.from_ayah_combo.get_child()
+        to_entry.set_text("1")
+
+    def on_to_ayah_clicked(self, widget, event):
+        to_entry = self.to_ayah_combo.get_child()
+        active_surah = self._get_active_iter_combo(self.surah_combo)
+        surah_order = int(active_surah.split(".")[0])-1
+        to_entry.set_text(f"{self.quran.suras_ayat[surah_order]}")
+
+    def on_surah_label_clicked(self, widget, event):
+        self.on_from_ayah_clicked(widget, event)
+        self.on_to_ayah_clicked(widget, event)
+
     def on_key_press(self, widget, event):
         if event.keyval == Gdk.KEY_Escape:
             self.dialog.destroy()
@@ -172,6 +192,7 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
                 self.from_ayah_store.append([f"{i}"])
                 self.to_ayah_store.append([f"{i}"])
             # self.from_ayah_combo.set_active(0)
+            self.on_surah_label_clicked(widget, None)
 
     def on_ok_button_clicked(self, widget):
         buffer = self.window.get_active_view().get_buffer()
