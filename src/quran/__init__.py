@@ -212,9 +212,12 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         except (ValueError, TypeError):
             return
         if self.latex_command_checkbox.get_active():
-            output = f"\\quranayah[{self.quran.suras_en[surah-1]}]"
-            output += f"[{from_ayah}"
-            output += f"-{to_ayah}]" if from_ayah!=to_ayah else "]"
+            if from_ayah==1 and to_ayah==self.quran.suras_ayat[surah-1]:
+                output = f"\\quransurah[{self.quran.suras_en[surah-1]}]"
+            else:
+                output = f"\\quranayah[{self.quran.suras_en[surah-1]}]"
+                output += f"[{from_ayah}"
+                output += f"-{to_ayah}]" if from_ayah!=to_ayah else "]"
         else:
             sep = "\n" if self.newline_checkbox.get_active() else " "
             Ayat = self.quran.get_verse(surah, from_ayah, to_ayah)
