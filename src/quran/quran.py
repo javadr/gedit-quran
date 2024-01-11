@@ -1,5 +1,6 @@
 import gzip
 
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Tuple, List, Union, Optional
 
@@ -8,6 +9,7 @@ SOURCE_DIR = Path(__file__).parent.resolve()
 # endregion ############### CONSTANTs ###############################
 
 
+@dataclass
 class Quran:
     suras_en: Tuple[str]
     suras_ar: Tuple[str]
