@@ -113,6 +113,7 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         entry.connect("changed", self.on_changed_ayah_combo, "from")
         entry.connect("activate", self.on_entry_activate, self.ok_button)
         entry = self.to_ayah_combo.get_child()
+        entry.set_text("7")
         entry.connect("changed", self.on_changed_ayah_combo, "to")
         entry.connect("activate", self.on_entry_activate, self.ok_button)
         # endregion ############################################################
