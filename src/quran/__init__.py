@@ -91,7 +91,7 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         self.dialog.set_transient_for(self.window)
         self.dialog.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
         self.dialog.connect("destroy", self.on_dialog_destroy)
-        # self.dialog.connect("key-press-event", self.on_key_press)
+        self.dialog.connect("key-press-event", self.on_key_press)
         self.surah_label_event_box.connect("button-press-event", self.on_surah_label_clicked)
         self.from_ayah_event_box.connect("button-press-event", self.on_from_ayah_clicked)
         self.to_ayah_event_box.connect("button-press-event", self.on_to_ayah_clicked)
@@ -117,17 +117,16 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         entry = self.from_ayah_combo.get_child()
         entry.set_text(f"{self.config['from_ayah']}")
         # Connect the "changed" signal of the entry to a callback
+        entry.connect("key-press-event", self.on_key_press_ayah)
         entry.connect("changed", self.on_changed_ayah_combo, "from")
         entry.connect("activate", self.on_entry_activate, self.ok_button)
         entry = self.to_ayah_combo.get_child()
         entry.set_text(f"{self.config['to_ayah']}")
+        entry.connect("key-press-event", self.on_key_press_ayah)
         entry.connect("changed", self.on_changed_ayah_combo, "to")
         entry.connect("activate", self.on_entry_activate, self.ok_button)
         # endregion ############################################################
         self.ok_button.connect("clicked", self.on_ok_button_clicked)
-        # self.cancel_button.connect("clicked", lambda x: self.dialog.close())
-
-        # self.ok_button.grab_focus()
 
     def on_from_ayah_clicked(self, widget, event):
         to_entry = self.from_ayah_combo.get_child()
@@ -143,53 +142,45 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         self.on_from_ayah_clicked(widget, event)
         self.on_to_ayah_clicked(widget, event)
 
-    # def on_key_press(self, widget, event):
-    #     if event.keyval == Gdk.KEY_Escape:
-    #         self.dialog.destroy()
-
-
     def on_entry_activate(self, entry, button):
         # This function is called when Enter key is pressed in the entry
         # Trigger the button's clicked event
         button.clicked()
 
+    def on_key_press(self, widget, event):
+        if event.keyval == Gdk.KEY_Escape:
+            self.dialog.destroy()
+
+    def on_key_press_ayah(self, widget, event):
+        # Get the key value from the event
+        keyval = event.keyval
+        # Filter out non-digit key presses
+        if Gdk.keyval_name(keyval).isalpha() and keyval in (list(range(58,256))+[32]):
+            # Return True to stop further handling by other signal handlers
+            return True
+
     def on_changed_ayah_combo(self, entry, from_or_to="from"):
         # Get the current text content inside the entry
-        text_content = entry.get_text()
-        digit_only = re.sub(r"\D", "", text_content)
+        text = entry.get_text()
+        if not text:
+            return
         # Block the signal temporarily to avoid recursion
         entry.handler_block_by_func(self.on_changed_ayah_combo)
-        ayah = self.quran.suras_ayat[int(self._get_active_iter_combo(self.surah_combo).split(".")[0])-1]
-        num = 0 if digit_only=="" else int(digit_only)
-        from_ayah = digit_only if num<=ayah else ayah
-        entry.set_text(f"{from_ayah}")
-        # The following makes two combos (from/to) sync such that from <= to
-        if from_or_to=="from":
-            to_ayah = int(self._get_active_iter_combo(self.to_ayah_combo))
-            if num > to_ayah:
-                to_entry = self.to_ayah_combo.get_child()
-                to_entry.set_text(f"{from_ayah}")
-        else:
-            to_ayah = int(self._get_active_iter_combo(self.from_ayah_combo))
-            if num < to_ayah:
-                to_entry = self.from_ayah_combo.get_child()
-                to_entry.set_text(f"{to_ayah}")
+        ayah_count = self.quran.suras_ayat[int(self._get_active_iter_combo(self.surah_combo).split(".")[0])-1]
+        num = int(text)
+        ayah = int(text) if num<=ayah_count else ayah_count
+        entry.set_text(f"{ayah}")
 
-        if from_or_to != "from":
-            from_ayah, to_ayah = to_ayah, from_ayah
-        self.config["from_ayah"] = int(from_ayah)
-        self.config["to_ayah"] = int(to_ayah)
+        for combo in ("from_ayah", "to_ayah"):
+            self.config[combo] = int(
+                self._get_active_iter_combo(getattr(self, f"{combo}_combo"))
+                )
         # Unblock the signal
         entry.handler_unblock_by_func(self.on_changed_ayah_combo)
 
     def _get_active_iter_combo(self, widget):
         entry = widget.get_child()
         return entry.get_text().strip()
-        # active_iter = widget.get_active_iter()
-        # if active_iter is not None:
-        #     model = widget.get_model()
-        #     active_text = model[active_iter][0]
-        #     return active_text
 
     def on_surah_name_changed(self, widget):
         active_surah = self._get_active_iter_combo(widget)
@@ -251,16 +242,11 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
 
         self.dialog.close()
 
-    def on_quran_activate(self, action, parameter, user_data=None):
+    def on_quran_activate(self, action, parameter):
         if not self.dialog:
             self._create_dialog()
 
         self.dialog.show()
 
-    def on_dialog_destroy(self, dialog, user_data=None):
-        # self.popup_size = popup._size
+    def on_dialog_destroy(self, dialog):
         self.dialog = None
-
-#     def on_activated(self, gfile, user_data=None):
-#         Gedit.commands_load_location(self.window, gfile, None, -1, -1)
-#         return True
