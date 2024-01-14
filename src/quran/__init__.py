@@ -217,17 +217,14 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
             logger.debug(f"Typesetting Surah {self.quran.suras_en[surah]} from Ayah {from_ayah} to {to_ayah}.")
         except (ValueError, TypeError):
             return
+
+        sep = "\n" if self.newline_checkbox.get_active() else " "
+        pre = " " if cursor_position.get_line_offset() and char_before_cursor!=" " else ""
         if self.latex_command_checkbox.get_active():
-            if from_ayah==1 and to_ayah==self.quran.suras_ayat[surah-1]:
-                output = f"\\quransurah[{self.quran.suras_en[surah-1]}]"
-            else:
-                output = f"\\quranayah[{self.quran.suras_en[surah-1]}]"
-                output += f"[{from_ayah}"
-                output += f"-{to_ayah}]" if from_ayah!=to_ayah else "]"
+            output = self.quran.latex(surah, from_ayah, to_ayah)
         else:
-            sep = "\n" if self.newline_checkbox.get_active() else " "
             Ayat = self.quran.get_verse(surah, from_ayah, to_ayah)
-            decorated_verses = sep.join(
+            output = sep.join(
                 [
                 ayah
                 + f" ﴿{self.quran.suras_ar[surah-1] if from_ayah==to_ayah else ''}{num}﴾"
@@ -235,9 +232,7 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
                 for (ayah, num) in Ayat
                 ],
             )
-            pre = " " if cursor_position.get_line_offset() and char_before_cursor!=" " else ""
-            output = f"{pre}{decorated_verses}{sep}"
-
+        output = f"{pre}{output}{sep}"
         buffer.insert(cursor_position, output)
 
         self.dialog.close()

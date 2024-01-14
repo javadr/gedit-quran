@@ -38,16 +38,30 @@ class Quran:
         return tuple(index)
 
     def get_verse(
-            self, sura: int,
+            self, surah: int,
             from_ayah: int, to_ayah: Optional[int] = None,
             ) -> List[Tuple[str, int]]:
         Ayat: List[Tuple[str, int]] = []
         if to_ayah is None:
             to_ayah = from_ayah
         with gzip.open(self.quran_file, "rt") as gzipped_file:
-            line_number = sum(self.suras_ayat[:sura-1]) + from_ayah # first ayah
+            line_number = sum(self.suras_ayat[:surah-1]) + from_ayah # first ayah
             for ayah in range(to_ayah - from_ayah + 1):
                 gzipped_file.seek(self.line_index[line_number - 1 + ayah])
                 num, verse = gzipped_file.readline().strip().split("|")[1:]
                 Ayat.append((verse, num))
         return Ayat
+
+    def latex(
+            self,
+            surah: int,
+            from_ayah: int,
+            to_ayah: int,
+            ) -> str:
+            if from_ayah==1 and to_ayah==self.suras_ayat[surah-1]:
+                latex_cmd = f"\\quransurah[{self.suras_en[surah-1]}]"
+            else:
+                latex_cmd = f"\\quranayah[{self.suras_en[surah-1]}]"
+                latex_cmd += f"[{from_ayah}"
+                latex_cmd += f"-{to_ayah}]" if from_ayah!=to_ayah else "]"
+            return latex_cmd
