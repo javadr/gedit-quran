@@ -127,6 +127,17 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         # endregion ############################################################
         self.ok_button.connect("clicked", self.on_ok_button_clicked)
 
+        # region Settings' loading + signals' connectins #######################
+        for item in ("ayah_address", "newline", "latex_command"):
+            check_button = getattr(self, f"{item}_checkbox")
+            check_button.set_active(self.config["Settings"].getboolean(item))
+            # Connect the button's "toggled" signal to a callback
+            check_button.connect("toggled", self.on_check_button_toggled, item)
+        # endregion ############################################################
+
+    def on_check_button_toggled(self, check_button, item):
+        self.config["Settings"] = { item: check_button.get_active() }
+
     def on_from_ayah_clicked(self, widget, event):
         to_entry = self.from_ayah_combo.get_child()
         to_entry.set_text("1")
@@ -172,7 +183,7 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
 
         for combo in ("from_ayah", "to_ayah"):
             self.config["Quran"] = {
-                combo : int(self._get_active_iter_combo(getattr(self, f"{combo}_combo")))
+                combo : int(self._get_active_iter_combo(getattr(self, f"{combo}_combo"))),
             }
 
         # Unblock the signal

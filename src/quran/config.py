@@ -25,9 +25,14 @@ class Config:
             self.data.read_dict(
                 dict(
                     Quran=dict(
-                        surah=f"1. {self.quran.suras_ar[0]} ({self.quran.suras_en[0]})",
-                        from_ayah=1,
-                        to_ayah=7,
+                        surah = f"1. {self.quran.suras_ar[0]} ({self.quran.suras_en[0]})",
+                        from_ayah = 1,
+                        to_ayah = 7,
+                    ),
+                    Settings=dict(
+                        ayah_address = True,
+                        newline = False,
+                        latex_command = False,
                     ),
                 ),
             )
@@ -47,6 +52,6 @@ class Config:
 if __name__ == "__main__":
     print(COFING_FILE)
     conf = Config()
-    conf['Quran'] = dict(from_ayah=1, to_ayah=100)
-    conf['Window Position'] = dict(x=100, y=200)
-    print(conf["quran"])
+    # conf['Quran'] = dict(from_ayah=20, to_ayah=100)
+    conf["Window Position"] = dict(x=100)
+    print(conf["Quran"])
