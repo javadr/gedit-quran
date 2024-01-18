@@ -104,21 +104,18 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         self.surah_combo.connect("changed", self.on_surah_name_changed)
         entry = self.surah_combo.get_child()
         entry.set_text(f"{self.config['Quran']['surah']}")
+        # To make force the from/to_ayah updated in compliance with the surah
+        self.on_surah_name_changed(self.surah_combo)
         # endregion
         # region ComboBox for Aya ##############################################
-        for i in range(1,8):
-            self.from_ayah_store.append([f"{i}"])
-        self.from_ayah_combo.set_active(0)
-        for i in range(1,8):
-            self.to_ayah_store.append([f"{i}"])
-        self.to_ayah_combo.set_active(0)
+        # from_ayah combo button
         # Get the entry widget embedded in the combo box
         entry = self.from_ayah_combo.get_child()
-        entry.set_text(f"{self.config['Quran']['from_ayah']}")
-        # Connect the "changed" signal of the entry to a callback
         entry.connect("key-press-event", self.on_key_press_ayah)
         entry.connect("changed", self.on_changed_ayah_combo, "from")
         entry.connect("activate", self.on_entry_activate, self.ok_button)
+        entry.set_text(f"{self.config['Quran']['from_ayah']}")
+        # to_ayah combo button
         entry = self.to_ayah_combo.get_child()
         entry.set_text(f"{self.config['Quran']['to_ayah']}")
         entry.connect("key-press-event", self.on_key_press_ayah)
