@@ -1,4 +1,5 @@
 import bz2
+import pickle
 
 from dataclasses import dataclass
 from pathlib import Path
@@ -17,7 +18,8 @@ class Quran:
     quran_text: Tuple[str]
     line_index: Tuple[int]
     quran_file: Union[Path, str] = SOURCE_DIR/"quran.txt.bz2"
-    quran_data: Union[Path, str] = SOURCE_DIR/"quran.data"
+    quran_data: Union[Path, str] = SOURCE_DIR/"quran.metadata"
+    quran_indices: Union[Path, str] = SOURCE_DIR/"quran-idx.pkl.bz2"
 
     def __init__(self):
         with open(self.quran_data) as quran_data_file:
@@ -25,7 +27,17 @@ class Quran:
         self.suras_ar = sa.strip().split(",")
         self.suras_en = se.strip().split(",")
         self.suras_ayat = tuple(map(int, st.strip().split(",")))
-        self.line_index = self._create_index()
+        self.line_index = self._get_indices()
+
+    def _get_indices(self):
+        if Path(self.quran_indices).exists():
+            with bz2.open(self.quran_indices, "rb") as bz2_file:
+                return pickle.load(bz2_file)
+        else:
+            indices = self._create_index()
+            with bz2.open(self.quran_indices, "wb") as bz2_file:
+                pickle.dump(indices, bz2_file)
+            return indices
 
     def _create_index(self) -> Tuple[int]:
         index = []
