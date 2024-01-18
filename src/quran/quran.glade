@@ -23,6 +23,7 @@
   <object class="GtkWindow" id="quran_window">
     <property name="name">Quran</property>
     <property name="can-focus">False</property>
+    <property name="resizable">False</property>
     <property name="window-position">center-on-parent</property>
     <property name="skip-taskbar-hint">True</property>
     <child>
@@ -97,6 +98,7 @@
                   <object class="GtkLabel">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
+                    <property name="tooltip-text" translatable="yes">Click to reset to 1</property>
                     <property name="label" translatable="yes">From Ayah:</property>
                   </object>
                 </child>
@@ -137,6 +139,7 @@
                   <object class="GtkLabel">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
+                    <property name="tooltip-text" translatable="yes">Click to set the last Ayah of the range</property>
                     <property name="label" translatable="yes">To:</property>
                   </object>
                 </child>
