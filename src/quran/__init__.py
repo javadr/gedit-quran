@@ -225,7 +225,7 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         try:
             from_ayah = int(self._get_active_iter_combo(self.from_ayah_combo))
             to_ayah = int(self._get_active_iter_combo(self.to_ayah_combo))
-            logger.debug(f"Typesetting Surah {self.quran.suras_en[surah]} from Ayah {from_ayah} to {to_ayah}.")
+            logger.debug(f"Typesetting Surah {self.quran.suras_en[surah-1]} from Ayah {from_ayah} to {to_ayah}.")
         except (ValueError, TypeError):
             return
 

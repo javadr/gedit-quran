@@ -1,4 +1,4 @@
-import gzip
+import bz2
 
 from dataclasses import dataclass
 from pathlib import Path
@@ -16,7 +16,7 @@ class Quran:
     suras_ayat: Tuple[int]
     quran_text: Tuple[str]
     line_index: Tuple[int]
-    quran_file: Union[Path, str] = SOURCE_DIR/"quran.txt.gz"
+    quran_file: Union[Path, str] = SOURCE_DIR/"quran.txt.bz2"
     quran_data: Union[Path, str] = SOURCE_DIR/"quran.data"
 
     def __init__(self):
@@ -30,11 +30,11 @@ class Quran:
     def _create_index(self) -> Tuple[int]:
         index = []
         position = 0
-        with gzip.open(self.quran_file, "rt") as gzipped_file:
+        with bz2.open(self.quran_file, "rt") as bz2_file:
             for _ in range(6236):
-                gzipped_file.readline()
+                bz2_file.readline()
                 index.append(position)
-                position = gzipped_file.tell()
+                position = bz2_file.tell()
         return tuple(index)
 
     def get_verse(
@@ -44,11 +44,11 @@ class Quran:
         Ayat: List[Tuple[str, int]] = []
         if to_ayah is None:
             to_ayah = from_ayah
-        with gzip.open(self.quran_file, "rt") as gzipped_file:
+        with bz2.open(self.quran_file, "rt") as bz2_file:
             line_number = sum(self.suras_ayat[:surah-1]) + from_ayah # first ayah
             for ayah in range(to_ayah - from_ayah + 1):
-                gzipped_file.seek(self.line_index[line_number - 1 + ayah])
-                num, verse = gzipped_file.readline().strip().split("|")[1:]
+                bz2_file.seek(self.line_index[line_number - 1 + ayah])
+                num, verse = bz2_file.readline().strip().split("|")[1:]
                 Ayat.append((verse, num))
         return Ayat
 
