@@ -3,6 +3,7 @@ import pickle
 
 from dataclasses import dataclass
 from pathlib import Path
+from random import randint
 from typing import Tuple, List, Union, Optional
 
 # region ############### CONSTANTs #################################
@@ -63,6 +64,21 @@ class Quran:
                 num, verse = bz2_file.readline().strip().split("|")[1:]
                 Ayat.append((verse, num))
         return Ayat
+
+    def index_to_address(self, index) -> tuple[int, int]:
+        c = 0
+        for i in range(114):
+            if c + self.suras_ayat[i] < index:
+                c += self.suras_ayat[i]
+            else:
+                surah = i+1
+                ayah = index-c
+                break
+        return surah, ayah
+
+    def random_verse(self):
+        random_verse = randint(1,6236)
+        return self.index_to_address(random_verse)
 
     def latex(
             self,

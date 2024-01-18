@@ -146,8 +146,13 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         to_entry.set_text(f"{self.quran.suras_ayat[surah_order]}")
 
     def on_surah_label_clicked(self, widget, event):
-        self.on_from_ayah_clicked(widget, event)
-        self.on_to_ayah_clicked(widget, event)
+        surah, ayah = self.quran.random_verse()
+        entry = self.surah_combo.get_child()
+        entry.set_text(f"{surah}. {self.quran.suras_ar[surah-1]} ({self.quran.suras_en[surah-1]})")
+        entry = self.from_ayah_combo.get_child()
+        entry.set_text(f"{ayah}")
+        entry = self.to_ayah_combo.get_child()
+        entry.set_text(f"{ayah}")
 
     def on_entry_activate(self, entry, button):
         # This function is called when Enter key is pressed in the entry
@@ -197,15 +202,13 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
             logger.debug(f"{active_surah} has total {self.quran.suras_ayat[surah_order]} of Ayat.")
             cell = Gtk.CellRendererText()
             self.from_ayah_combo.pack_start(cell, True)
-            # self.from_ayah_combo.add_attribute(cell, "text", 0)
             self.from_ayah_store.clear()
             self.to_ayah_store.clear()
             for i in range(1,self.quran.suras_ayat[surah_order]+1):
                 self.from_ayah_store.append([f"{i}"])
                 self.to_ayah_store.append([f"{i}"])
-            # self.from_ayah_combo.set_active(0)
-            self.on_surah_label_clicked(widget, None)
-
+            self.on_from_ayah_clicked(widget, None)
+            self.on_to_ayah_clicked(widget, None)
             self.config["Quran"] = dict(surah=active_surah)
 
     def on_ok_button_clicked(self, widget):
