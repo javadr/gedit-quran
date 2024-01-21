@@ -107,10 +107,10 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         self.on_surah_name_changed(self.surah_combo)
         # endregion
         # set active items of combo boxes
-        surah_idx = int(self.config['Quran']['surah'].split(".")[0])-1
+        surah_idx = int(self.config["Quran"]["surah"].split(".")[0])-1
         self.surah_combo.set_active(surah_idx)
-        self.from_ayah_combo.set_active(int(self.config['Quran']["from_ayah"])-1)
-        self.to_ayah_combo.set_active(int(self.config['Quran']["to_ayah"])-1)
+        self.from_ayah_combo.set_active(int(self.config["Quran"]["from_ayah"])-1)
+        self.to_ayah_combo.set_active(int(self.config["Quran"]["to_ayah"])-1)
         # region ComboBox for Aya ##############################################
         # from_ayah combo button
         # Get the entry widget embedded in the combo box
@@ -182,7 +182,9 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
             return
         # Block the signal temporarily to avoid recursion
         entry.handler_block_by_func(self.on_changed_ayah_combo)
-        ayah_count = self.quran.suras_ayat[int(self._get_active_iter_combo(self.surah_combo).split(".")[0])-1]
+        ayah_count = self.quran.suras_ayat[
+            int(self._get_active_iter_combo(self.surah_combo).split(".")[0])-1
+            ]
         num = int(text)
         ayah = int(text) if num<=ayah_count else ayah_count
         entry.set_text(f"{ayah}")
@@ -229,7 +231,10 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         try:
             from_ayah = int(self._get_active_iter_combo(self.from_ayah_combo))
             to_ayah = int(self._get_active_iter_combo(self.to_ayah_combo))
-            logger.debug(f"Typesetting Surah {self.quran.suras_en[surah-1]} from Ayah {from_ayah} to {to_ayah}.")
+            if from_ayah > to_ayah:
+                return
+            logger.debug(f"Typesetting Surah {self.quran.suras_en[surah-1]}"
+                         f"from Ayah {from_ayah} to {to_ayah}.")
         except (ValueError, TypeError):
             return
 
