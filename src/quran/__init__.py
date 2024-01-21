@@ -100,13 +100,17 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         cell_renderer.set_property("xalign", 1.0)  # Align text to the right
         for i, (arabic, english) in enumerate(zip(self.quran.suras_ar, self.quran.suras_en), 1):
             self.surah_store.append([f"{i}. {arabic} ({english})"])
-        self.surah_combo.set_active(0)
         self.surah_combo.connect("changed", self.on_surah_name_changed)
         entry = self.surah_combo.get_child()
         entry.set_text(f"{self.config['Quran']['surah']}")
         # To make force the from/to_ayah updated in compliance with the surah
         self.on_surah_name_changed(self.surah_combo)
         # endregion
+        # set active items of combo boxes
+        surah_idx = int(self.config['Quran']['surah'].split(".")[0])-1
+        self.surah_combo.set_active(surah_idx)
+        self.from_ayah_combo.set_active(int(self.config['Quran']["from_ayah"])-1)
+        self.to_ayah_combo.set_active(int(self.config['Quran']["to_ayah"])-1)
         # region ComboBox for Aya ##############################################
         # from_ayah combo button
         # Get the entry widget embedded in the combo box
