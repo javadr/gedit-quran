@@ -193,13 +193,13 @@
                 <property name="baseline-position">bottom</property>
                 <property name="layout-style">start</property>
                 <child>
-                  <object class="GtkCheckButton" id="ayah_address_checkbox">
-                    <property name="label" translatable="yes">_Ayah Address</property>
+                  <object class="GtkCheckButton" id="newline_checkbox">
+                    <property name="label" translatable="yes">_New Line</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">False</property>
+                    <property name="tooltip-text" translatable="yes">Typeset each Ayah on a separate physical line</property>
                     <property name="use-underline">True</property>
-                    <property name="active">True</property>
                     <property name="draw-indicator">True</property>
                   </object>
                   <packing>
@@ -209,18 +209,36 @@
                   </packing>
                 </child>
                 <child>
+                  <object class="GtkCheckButton" id="ayah_address_checkbox">
+                    <property name="label" translatable="yes">_Ayah Address</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">False</property>
+                    <property name="tooltip-text" translatable="yes">Add Ayah's number at the end of the Ayah</property>
+                    <property name="use-underline">True</property>
+                    <property name="active">True</property>
+                    <property name="draw-indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkCheckButton" id="latex_command_checkbox">
                     <property name="label" translatable="yes">_LaTeX Command</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">False</property>
+                    <property name="tooltip-text" translatable="yes">Typeset LaTeX companion command of the Quran package</property>
                     <property name="use-underline">True</property>
                     <property name="draw-indicator">True</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
                     <property name="fill">True</property>
-                    <property name="position">1</property>
+                    <property name="position">2</property>
                   </packing>
                 </child>
               </object>
@@ -252,17 +270,17 @@
                 <property name="orientation">vertical</property>
                 <property name="layout-style">end</property>
                 <child>
-                  <object class="GtkCheckButton" id="newline_checkbox">
-                    <property name="label" translatable="yes">_New Line</property>
+                  <object class="GtkCheckButton" id="tanzil_checkbox">
+                    <property name="label" translatable="yes">Tanzil.net</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">False</property>
-                    <property name="use-underline">True</property>
+                    <property name="tooltip-text" translatable="yes">Open the specified Ayah in Tanzil.net</property>
                     <property name="draw-indicator">True</property>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
                     <property name="position">0</property>
                   </packing>
                 </child>

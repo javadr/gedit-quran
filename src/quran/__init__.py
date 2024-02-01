@@ -76,7 +76,8 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
                 "surah_store", "from_ayah_store", "to_ayah_store",
                 "surah_combo", "from_ayah_combo", "to_ayah_combo",
                 "ayah_address_checkbox","newline_checkbox",
-                "latex_command_checkbox", "ok_button", #"cancel_button",
+                "latex_command_checkbox", "tanzil_checkbox",
+                "ok_button", #"cancel_button",
                 "surah_label_event_box",
                 "from_ayah_event_box", "to_ayah_event_box",
             ):
@@ -129,7 +130,7 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         self.ok_button.connect("clicked", self.on_ok_button_clicked)
 
         # region Settings' loading + signals' connectins #######################
-        for item in ("ayah_address", "newline", "latex_command"):
+        for item in ("ayah_address", "newline", "latex_command", "tanzil"):
             check_button = getattr(self, f"{item}_checkbox")
             check_button.set_active(self.config["Settings"].getboolean(item))
             # Connect the button's "toggled" signal to a callback
@@ -254,6 +255,10 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
             )
         output = f"{pre}{output}{sep}"
         buffer.insert(cursor_position, output)
+
+        if self.tanzil_checkbox.get_active():
+            # Open the URL in the default web browser
+            Gtk.show_uri(None, f"https://tanzil.net/#{surah}:{from_ayah}", 0)
 
         self.dialog.close()
 

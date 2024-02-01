@@ -33,6 +33,7 @@ class Config:
                         ayah_address = True,
                         newline = False,
                         latex_command = False,
+                        tanzil = False,
                     ),
                 ),
             )
