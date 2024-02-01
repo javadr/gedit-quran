@@ -8,6 +8,11 @@
       <column type="gchararray"/>
     </columns>
   </object>
+  <object class="GtkImage" id="img_tanzil">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="pixbuf">quran_img_tanzil.svg</property>
+  </object>
   <object class="GtkListStore" id="surah_store">
     <columns>
       <!-- column-name sura_name -->
@@ -276,6 +281,7 @@
                     <property name="can-focus">True</property>
                     <property name="receives-default">False</property>
                     <property name="tooltip-text" translatable="yes">Open the specified Ayah in Tanzil.net</property>
+                    <property name="image">img_tanzil</property>
                     <property name="draw-indicator">True</property>
                   </object>
                   <packing>
