@@ -107,6 +107,7 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         entry = self.surah_combo.get_child()
         entry.set_text(f"{self.config['Quran']['surah']}")
         entry.select_region(0, -1)
+        entry.connect("activate", self.on_entry_activate, self.ok_button)
         ## To make force the from/to_ayah updated in compliance with the surah
         self.on_surah_name_changed(self.surah_combo)
         self.entry_completion.set_match_func(self.match_func)
