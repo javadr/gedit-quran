@@ -15,9 +15,21 @@
   </object>
   <object class="GtkListStore" id="surah_store">
     <columns>
-      <!-- column-name sura_name -->
+      <!-- column-name surah_name -->
       <column type="gchararray"/>
     </columns>
+  </object>
+  <object class="GtkEntryCompletion" id="entry_completion">
+    <property name="model">surah_store</property>
+    <property name="text-column">0</property>
+    <property name="inline-completion">True</property>
+    <property name="inline-selection">True</property>
+    <child>
+      <object class="GtkCellRendererText" id="cell_rendenrer"/>
+      <attributes>
+        <attribute name="text">0</attribute>
+      </attributes>
+    </child>
   </object>
   <object class="GtkListStore" id="to_ayah_store">
     <columns>
@@ -74,7 +86,10 @@
                 <property name="entry-text-column">0</property>
                 <child internal-child="entry">
                   <object class="GtkEntry">
-                    <property name="can-focus">False</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="completion">entry_completion</property>
+                    <property name="input-hints">GTK_INPUT_HINT_WORD_COMPLETION | GTK_INPUT_HINT_NONE</property>
                   </object>
                 </child>
               </object>

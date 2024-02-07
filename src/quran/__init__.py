@@ -80,6 +80,7 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
                 "ok_button", #"cancel_button",
                 "surah_label_event_box",
                 "from_ayah_event_box", "to_ayah_event_box",
+                "entry_completion",
             ):
             setattr(self, item, builder.get_object(item))
 
@@ -95,47 +96,59 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         self.surah_label_event_box.connect("button-press-event", self.on_surah_label_clicked)
         self.from_ayah_event_box.connect("button-press-event", self.on_from_ayah_clicked)
         self.to_ayah_event_box.connect("button-press-event", self.on_to_ayah_clicked)
+        ########################################################################
         # region ComboBox for Sura #############################################
-        # Set RTL text direction for the GtkCellRendererText
+        ## Set RTL text direction for the GtkCellRendererText
         cell_renderer = self.surah_combo.get_cells()[0]
         cell_renderer.set_property("xalign", 1.0)  # Align text to the right
         for i, (arabic, english) in enumerate(zip(self.quran.suras_ar, self.quran.suras_en), 1):
             self.surah_store.append([f"{i}. {arabic} ({english})"])
-        self.surah_combo.connect("changed", self.on_surah_name_changed)
+        self.surah_combo.connect_after("changed", self.on_surah_name_changed)
         entry = self.surah_combo.get_child()
         entry.set_text(f"{self.config['Quran']['surah']}")
-        # To make force the from/to_ayah updated in compliance with the surah
+        entry.select_region(0, -1)
+        ## To make force the from/to_ayah updated in compliance with the surah
         self.on_surah_name_changed(self.surah_combo)
-        # endregion
-        # set active items of combo boxes
+        self.entry_completion.set_match_func(self.match_func)
+        # endregion ############################################################
+        ########################################################################
+        ## set active items of combo boxes
         surah_idx = int(self.config["Quran"]["surah"].split(".")[0])-1
         self.surah_combo.set_active(surah_idx)
         self.from_ayah_combo.set_active(int(self.config["Quran"]["from_ayah"])-1)
         self.to_ayah_combo.set_active(int(self.config["Quran"]["to_ayah"])-1)
+        ########################################################################
         # region ComboBox for Aya ##############################################
-        # from_ayah combo button
-        # Get the entry widget embedded in the combo box
+        ## from_ayah combo button
+        ## Get the entry widget embedded in the combo box
         entry = self.from_ayah_combo.get_child()
         entry.connect("key-press-event", self.on_key_press_ayah)
         entry.connect("changed", self.on_changed_ayah_combo, "from")
         entry.connect("activate", self.on_entry_activate, self.ok_button)
         entry.set_text(f"{self.config['Quran']['from_ayah']}")
-        # to_ayah combo button
+        ## to_ayah combo button
         entry = self.to_ayah_combo.get_child()
         entry.set_text(f"{self.config['Quran']['to_ayah']}")
         entry.connect("key-press-event", self.on_key_press_ayah)
         entry.connect("changed", self.on_changed_ayah_combo, "to")
         entry.connect("activate", self.on_entry_activate, self.ok_button)
         # endregion ############################################################
-        self.ok_button.connect("clicked", self.on_ok_button_clicked)
-
+        ########################################################################
         # region Settings' loading + signals' connectins #######################
         for item in ("ayah_address", "newline", "latex_command", "tanzil"):
             check_button = getattr(self, f"{item}_checkbox")
             check_button.set_active(self.config["Settings"].getboolean(item))
-            # Connect the button's "toggled" signal to a callback
+            ## Connect the button's "toggled" signal to a callback
             check_button.connect("toggled", self.on_check_button_toggled, item)
         # endregion ############################################################
+        ########################################################################
+        self.ok_button.connect("clicked", self.on_ok_button_clicked)
+
+    def match_func(self, completion, key, iter, data=None):
+        model = completion.get_model()
+        text = model[iter][0].lower()
+        key = key.lower()
+        return key in text
 
     def on_check_button_toggled(self, check_button, item):
         self.config["Settings"] = { item: check_button.get_active() }
@@ -205,7 +218,10 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
     def on_surah_name_changed(self, widget):
         active_surah = self._get_active_iter_combo(widget)
         if active_surah is not None:
-            surah_order = int(active_surah.split(".")[0])-1
+            try:
+                surah_order = int(active_surah.split(".")[0])-1
+            except ValueError:
+                return
             logger.debug(f"{active_surah} has total {self.quran.suras_ayat[surah_order]} of Ayat.")
             cell = Gtk.CellRendererText()
             self.from_ayah_combo.pack_start(cell, True)
@@ -228,8 +244,8 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
 
         # Handle OK button click
         # self.dialog.response(Gtk.ResponseType.ACCEPT)
-        surah = int(self._get_active_iter_combo(self.surah_combo).split(".")[0])
         try:
+            surah = int(self._get_active_iter_combo(self.surah_combo).split(".")[0])
             from_ayah = int(self._get_active_iter_combo(self.from_ayah_combo))
             to_ayah = int(self._get_active_iter_combo(self.to_ayah_combo))
             if from_ayah > to_ayah:
