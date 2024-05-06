@@ -236,13 +236,15 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
             self.config["Quran"] = dict(surah=active_surah)
 
     def on_ok_button_clicked(self, widget):
-        buffer = self.window.get_active_view().get_buffer()
-        cursor_position = buffer.get_iter_at_mark(buffer.get_insert())
+        try:
+            buffer = self.window.get_active_view().get_buffer()
+            cursor_position = buffer.get_iter_at_mark(buffer.get_insert())
 
-        cursor_position.backward_char()
-        char_before_cursor = cursor_position.get_text(buffer.get_iter_at_mark(buffer.get_insert()))
-        cursor_position.forward_char()
-
+            cursor_position.backward_char()
+            char_before_cursor = cursor_position.get_text(buffer.get_iter_at_mark(buffer.get_insert()))
+            cursor_position.forward_char()
+        except (AttributeError, ):
+            buffer = None
         # Handle OK button click
         # self.dialog.response(Gtk.ResponseType.ACCEPT)
         try:
@@ -256,22 +258,24 @@ class QuranPlugin(GObject.Object, Gedit.WindowActivatable):
         except (ValueError, TypeError):
             return
 
-        sep = "\n" if self.newline_checkbox.get_active() else " "
-        pre = " " if cursor_position.get_line_offset() and char_before_cursor!=" " else ""
-        if self.latex_command_checkbox.get_active():
-            output = self.quran.latex(surah, from_ayah, to_ayah)
-        else:
-            Ayat = self.quran.get_verse(surah, from_ayah, to_ayah)
-            output = sep.join(
-                [
-                ayah
-                + f" ﴿{self.quran.suras_ar[surah-1] if from_ayah==to_ayah else ''}{num}﴾"
-                if self.ayah_address_checkbox.get_active() else ""
-                for (ayah, num) in Ayat
-                ],
-            )
-        output = f"{pre}{output}{sep}"
-        buffer.insert(cursor_position, output)
+        # If there is an open windown, typesets it
+        if buffer is not None:
+            sep = "\n" if self.newline_checkbox.get_active() else " "
+            pre = " " if cursor_position.get_line_offset() and char_before_cursor!=" " else ""
+            if self.latex_command_checkbox.get_active():
+                output = self.quran.latex(surah, from_ayah, to_ayah)
+            else:
+                Ayat = self.quran.get_verse(surah, from_ayah, to_ayah)
+                output = sep.join(
+                    [
+                    ayah
+                    + f" ﴿{self.quran.suras_ar[surah-1] if from_ayah==to_ayah else ''}{num}﴾"
+                    if self.ayah_address_checkbox.get_active() else ""
+                    for (ayah, num) in Ayat
+                    ],
+                )
+            output = f"{pre}{output}{sep}"
+            buffer.insert(cursor_position, output)
 
         if self.tanzil_checkbox.get_active():
             # Open the URL in the default web browser
